@@ -16,7 +16,7 @@ resistance_folder = "/n/data1/hms/dbmi/farhat/rollingDB/summary_table_resistance
 directory =  "/n/data1/hms/dbmi/farhat/rollingDB/genomic_data/"
 target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
 filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
-antibiotic = 0 ##Amikacin-antibiotics_dicts[0]##
+antibiotic = 18 ##Rifampicin-antibiotics_dicts[18]##
 
 ##############################Antibiotics data##################################
 #phenotypes =[]
