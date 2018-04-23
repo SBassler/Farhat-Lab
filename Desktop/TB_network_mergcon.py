@@ -150,7 +150,7 @@ with open(input_file, "r") as csvfile:
                 phenotype_SNP [row[0]] = row[1]
                 r2_description.append(row[1])        
 ############################Manhatten p values#################################    
-df = DataFrame({"SNP":r2_finals, "pvalue":r2_finalp, "phenotype": r2_description})
+df = pd.DataFrame({"SNP":r2_finals, "pvalue":r2_finalp, "phenotype": r2_description})
 df.phenotype = df.phenotype.astype('category')
 df.phenotype = df.phenotype.cat.set_categories(['Resistant', "Sensitive"], ordered=True)
 df = df.sort_values('phenotype')
