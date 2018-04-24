@@ -11,10 +11,11 @@ from pandas import DataFrame
 import math
 import regex as re
 from collections import Counter
+from collections import defaultdict
 
 resistance_folder = "/n/data1/hms/dbmi/farhat/rollingDB/summary_table_resistance2.tsv"
 directory =  "/n/data1/hms/dbmi/farhat/rollingDB/genomic_data/"
-target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1/"
+target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/test/"
 filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
 antibiotic = 18 ##rifampicin-antibiotics_dicts[18]##
 
@@ -42,7 +43,7 @@ with open(resistance_folder, "r") as tsvfile:
         k=0
         split=row.rstrip("\n").split("\t")
         for k in range (0,(len(split)-1)):                
-            if split[k+1] == "R" or split [k+1] == "S":
+            if split[k+1] in "RS":
                 antibiotics_dicts[k] [split[0]] = split[k+1]
                 antibiotics_lists[k].append(split[0])
                 
@@ -59,7 +60,7 @@ for root, dir, files in os.walk(directory):
                     names = re.findall(r"(\w+\d+)", name[0])
                     filename = str(names[0])
                     if filename in antibiotics_dicts[antibiotic]:
-                        if antibiotics_dicts[antibiotic][filename] == "R" or "S":
+                        if antibiotics_dicts[antibiotic][filename] in "RS":
                             if i < 501:
                                 file_list.append(directory+name[0]+"/pilon/"+name[0]+".vcf")
                                 file_dict [name[0]] = directory+name[0]+"/pilon/"+name[0]+".vcf"
@@ -87,7 +88,6 @@ for root, dir, files in os.walk(directory):
 #                allcombination.append(str(first)+"_"+str(second))
 #            i+=1
 #            
-#
 #Single_SNP_prob ={}
 #Single_SNP_proba ={}
 #Single_SNP_probs =[]
@@ -175,7 +175,6 @@ with open(input_file, "r") as csvfile:
 #    writer=csv.writer(csv_file, delimiter ="\t")
 #    for key, value in pearson2.items():
 #        writer.writerow([key, value])
-
                 
 ##################Phenotype correlations for different drugs###################
 clone_key ={}
@@ -192,32 +191,34 @@ names=[]
 i=0
 resistant = 0
 sensitive = 0
-clone_lists = [[] for _ in range(len(file_dict))]
+clone_lists = defaultdict()
 for key,val in file_dict.items():
     names = re.findall(r"(\w+\d+)", key)
     filename = str(names[0])
     if filename in antibiotics_dicts[antibiotic]:
-        if antibiotics_dicts[antibiotic][filename] == "R" or "S":
+        if antibiotics_dicts[antibiotic][filename] in "RS":
             if antibiotics_dicts[antibiotic][filename] == "R":
                 resistant +=1
             elif antibiotics_dicts[antibiotic][filename] == "S":
                 sensitive +=1
             pos = []
             with open(val) as vcffile:
-                vcfReader = vcf.Reader(vcffile)
-                for record in vcfReader:
-                    if record.is_snp:   
-                        pos.append(record.POS)
-                clone_lists[i]=pos
+                clone_lists[i]=[record.POS for record in vcf.Reader(vcffile) if record.is_snp]
                 clone_key [i] = antibiotics_dicts[antibiotic][filename]
-                i+=1  
-                
-                
-clone_listsc = [x for x in clone_lists if x]
+                i+=1
+
 count=0
 resistance_prob = (resistant/sensitive)
-counts_isolates = (len(clone_listsc)) 
 length = math.ceil((len(Multi_SNP_probs))/10)
+#a = True | True <<1 | True <<2 = 7
+#b = True | True <<1 | False <<2 = 3
+#c = True | False <<1 | True <<2 = 5
+#d = True | False <<1 | False <<2 = 1
+#e = False | True <<1 | True <<2 = 6
+#f = False | True <<1 | False <<2 = 2
+#g = False | False <<1 | True <<2 = 4
+#h =  False | False <<1 | False <<2 = 0
+
 for element in Multi_SNP_probs[:length]:
     if count == (0.5*length):
         with open (target_folder+"count_list_a.csv", "w") as csv_file:
@@ -258,51 +259,21 @@ for element in Multi_SNP_probs[:length]:
         with open (target_folder+"count_list_h.csv", "w") as csv_file:
             writer=csv.writer(csv_file, delimiter ="\t")
             for key, value in count_list_h.items():
-                writer.writerow([key, value])        
-    pos = []
-    a=0
-    b=0
-    c=0
-    d=0
-    e=0
-    f=0
-    g=0
-    h=0
+                writer.writerow([key, value])   
     i=0
+    values = defaultdict(int)
     count_list ={}
     split=element.split("_")
-    for clone in clone_listsc:
-        if clone_key [i] =="R":
-            if int(split[0]) in clone:
-                if int(split[1]) in clone:
-                    a+=1
-                elif int(split[1]) not in clone:
-                    b+=1
-            elif int(split[0]) not in clone:
-                if int(split[1]) in clone:
-                    c+=1
-                elif int(split[1]) not in clone:
-                    d+=1
-        elif clone_key [i] == "S":
-            if int(split[0]) in clone:
-                if int(split[1]) in clone:
-                    e+=1
-                elif int(split[1]) not in clone:
-                    f+=1
-            elif int(split[0]) not in clone:
-                if int(split[1]) in clone:
-                    g+=1
-                elif int(split[1]) not in clone:
-                    h+=1
-        i+=1           
-    count_list_a [element] = a/counts_isolates
-    count_list_b [element] = b/counts_isolates
-    count_list_c [element] = c/counts_isolates
-    count_list_d [element] = d/counts_isolates
-    count_list_e [element] = e/counts_isolates
-    count_list_f [element] = f/counts_isolates
-    count_list_g [element] = g/counts_isolates
-    count_list_h [element] = h/counts_isolates
+    for i in range (len(clone_lists)):
+        values[(clone_key[i] == "R") | ((int(split[0]) in clone_lists[i]) << 1) | ((int(split[1]) in clone_lists[i]) << 2)] +=1
+    count_list_a [element] = values[7] /len(file_list)
+    count_list_b [element] = values[3] /len(file_list)
+    count_list_c [element] = values[5] /len(file_list)
+    count_list_d [element] = values[1] /len(file_list)
+    count_list_e [element] = values[6] /len(file_list)
+    count_list_f [element] = values[2] /len(file_list)
+    count_list_g [element] = values[4] /len(file_list)
+    count_list_h [element] = values[0] /len(file_list)                 
     count +=1
     
 with open (target_folder+"count_list_a2.csv", "w") as csv_file:
@@ -591,3 +562,30 @@ with open (target_folder+"phenotype_SNP1.csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
     for key, value in phenotype_SNP.items():
         writer.writerow([key, value])
+        
+############################Manhatten p values#################################    
+df = pd.DataFrame({"SNP":r2_finals, "pvalue":r2_finalp, "phenotype": r2_description})
+df.phenotype = df.phenotype.astype('category')
+df.phenotype = df.phenotype.cat.set_categories(['Pathogenic', "Commensal"], ordered=True)
+df = df.sort_values('phenotype')
+
+# How to plot gene vs. -log10(pvalue) and colour it by chromosome?
+df['minuslog10pvalue'] = -np.log10(df.pvalue)
+df['ind'] = range(len(df))
+df_grouped = df.groupby(('phenotype'))
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+colors = ['red','green']
+x_labels = []
+x_labels_pos = []
+for num, (name, group) in enumerate(df_grouped):
+    group.plot(kind='scatter', x='ind', y='minuslog10pvalue',color=colors[num % len(colors)], ax=ax)
+    x_labels.append(name)
+    x_labels_pos.append((group['ind'].iloc[-1   ] - (group['ind'].iloc[-1] - group['ind'].iloc[0])/2))
+ax.set_xticks(x_labels_pos)
+ax.set_xticklabels(x_labels)
+ax.set_xlim([0, len(df)])
+ax.set_ylim([0, 6])
+ax.set_xlabel('phenotype')
+fig.savefig(target_folder+'Manhatten.png')
