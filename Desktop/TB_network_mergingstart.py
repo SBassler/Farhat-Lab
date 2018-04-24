@@ -14,8 +14,8 @@ from collections import Counter
 
 resistance_folder = "/n/data1/hms/dbmi/farhat/rollingDB/summary_table_resistance2.tsv"
 directory =  "/n/data1/hms/dbmi/farhat/rollingDB/genomic_data/"
-target_folder = "/n/data1/hms/dbmi/farhat/sbassler/ethambutol/"
-antibiotic = 6 ##ethambutol-antibiotics_dicts[6]##
+target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
+antibiotic = 18 ##rifampicin-antibiotics_dicts[18]##
 
 #############################Antibiotics data##################################
 phenotypes =[]
@@ -41,7 +41,7 @@ with open(resistance_folder, "r") as tsvfile:
         k=0
         split=row.rstrip("\n").split("\t")
         for k in range (0,(len(split)-1)):                
-            if split[k+1] == "R" or split [k+1] == "S":
+            if split[k+1] in "RS":
                 antibiotics_dicts[k] [split[0]] = split[k+1]
                 antibiotics_lists[k].append(split[0])
                 
@@ -57,7 +57,7 @@ for root, dir, files in os.walk(directory):
                     names = re.findall(r"(\w+\d+)", name[0])
                     filename = str(names[0])
                     if filename in antibiotics_dicts[antibiotic]:
-                        if antibiotics_dicts[antibiotic][filename] == "R" or "S":
+                        if antibiotics_dicts[antibiotic][filename] in "RS":
                             if i < 501:
                                 file_list.append(directory+name[0]+"/pilon/"+name[0]+".vcf")
                                 file_dict [name[0]] = directory+name[0]+"/pilon/"+name[0]+".vcf"
@@ -93,9 +93,9 @@ Single_SNP_probp =[]
 counts = Counter(allpos)
 Single_SNP_proba=dict(counts)
 for element in Single_SNP_proba:
-    Single_SNP_prob[str(element)] = float((Single_SNP_proba[element]/len(file_list)))
+    Single_SNP_prob[str(element)] = (float(Single_SNP_proba[element]/len(file_list)))
     Single_SNP_probs.append(str(element))
-    Single_SNP_probp.append(float((Single_SNP_proba[element]/len(file_list))))
+    Single_SNP_probp.append(float(Single_SNP_proba[element]/len(file_list)))
     
 with open (target_folder+"Single_SNP_prob.csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
@@ -109,10 +109,10 @@ Multi_SNP_probp =[]
 counts = Counter(allcombination)
 Multi_SNP_proba=dict(counts)
 for element in Multi_SNP_proba:
-    if float((Multi_SNP_proba[element]/len(file_list))) >0:
-        Multi_SNP_prob[str(element)] = float((Multi_SNP_proba[element]/len(file_list)))
+    if (float(Multi_SNP_proba[element])/len(file_list)) >0:
+        Multi_SNP_prob[str(element)] = (float(Multi_SNP_proba[element])/len(file_list))
         Multi_SNP_probs.append(str(element))
-        Multi_SNP_probp.append(float((Multi_SNP_proba[element]/len(file_list))))
+        Multi_SNP_probp.append((float(Multi_SNP_proba[element])/len(file_list)))
     
 with open (target_folder+"Multi_SNP_prob.csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
