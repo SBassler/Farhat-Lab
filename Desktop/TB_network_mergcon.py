@@ -10,7 +10,18 @@ import networkx as nx
 from pandas import DataFrame
 import math
 import regex as re
+from numpy import array
+from collections import defaultdict
 from collections import Counter
+from sklearn import svm
+from mlxtend.plotting import plot_decision_regions
+import matplotlib.gridspec as gridspec
+import itertools
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from mlxtend.classifier import EnsembleVoteClassifier
+from mlxtend.data import iris_data
 
 resistance_folder = "/n/data1/hms/dbmi/farhat/rollingDB/summary_table_resistance2.tsv"
 directory =  "/n/data1/hms/dbmi/farhat/rollingDB/genomic_data/"
@@ -18,57 +29,56 @@ target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
 filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
 antibiotic = 18 ##Rifampicin-antibiotics_dicts[18]##
 
-##############################Antibiotics data##################################
-#phenotypes =[]
-#isolates =[]
-#isolate_col =[]
-#antibiotics =[]
-#i=0
-#with open(resistance_folder, "r") as tsvfile:
-#    for i, row in enumerate(tsvfile):
-#        while i<1:
-#            split = row.split("\t")
-#            antibiotics = split [1:]
-#            i +=1
-#            pass
-#        split= row.split("\t")
-#        isolate_col.append(split[0])
-#        i +=1
-#    isolates = isolate_col [1:]
-#antibiotics_dicts= [{} for _ in range(len(antibiotics))]
-#antibiotics_lists=[[] for _ in range(len(antibiotics))]
-#with open(resistance_folder, "r") as tsvfile:
-#    for row in tsvfile:
-#        k=0
-#        split=row.rstrip("\n").split("\t")
-#        for k in range (0,(len(split)-1)):                
-#            if split[k+1] == "R" or split [k+1] == "S":
-#                antibiotics_dicts[k] [split[0]] = split[k+1]
-#                antibiotics_lists[k].append(split[0])
+#############################Antibiotics data##################################
+phenotypes =[]
+isolates =[]
+isolate_col =[]
+antibiotics =[]
+i=0
+with open(resistance_folder, "r") as tsvfile:
+    for i, row in enumerate(tsvfile):
+        while i<1:
+            split = row.split("\t")
+            antibiotics = split [1:]
+            i +=1
+            pass
+        split= row.split("\t")
+        isolate_col.append(split[0])
+        i +=1
+    isolates = isolate_col [1:]
+antibiotics_dicts= [{} for _ in range(len(antibiotics))]
+antibiotics_lists=[[] for _ in range(len(antibiotics))]
+with open(resistance_folder, "r") as tsvfile:
+    for row in tsvfile:
+        k=0
+        split=row.rstrip("\n").split("\t")
+        for k in range (0,(len(split)-1)):                
+            if split[k+1] == "R" or split [k+1] == "S":
+                antibiotics_dicts[k] [split[0]] = split[k+1]
+                antibiotics_lists[k].append(split[0])
 #                
 ################################################################################
-#
-#file_dict ={}
-#file_list =[]
-#name_list =[]
-#i=0
-#for root, dir, files in os.walk(directory):
-#        for name in files:
-#                if name.endswith('.vcf'):
-#                    name = name.split(".")
-#                    names = re.findall(r"(\w+\d+)", name[0])
-#                    filename = str(names[0])
-#                    if filename in antibiotics_dicts[antibiotic]:
-#                        if antibiotics_dicts[antibiotic][filename] == "R" or "S":
-#                            if i < 501:
-#                                file_list.append(directory+name[0]+"/pilon/"+name[0]+".vcf")
-#                                file_dict [name[0]] = directory+name[0]+"/pilon/"+name[0]+".vcf"
-#                                name_list.append(name)
-#                                i +=1
-                                
+
+file_dict ={}
+file_list =[]
+name_list =[]
+i=0
+for root, dir, files in os.walk(directory):
+        for name in files:
+                if name.endswith('.vcf'):
+                    name = name.split(".")
+                    names = re.findall(r"(\w+\d+)", name[0])
+                    filename = str(names[0])
+                    if filename in antibiotics_dicts[antibiotic]:
+                        if antibiotics_dicts[antibiotic][filename] in "RS":
+                            if i < 501:
+                                file_list.append(directory+name[0]+"/pilon/"+name[0]+".vcf")
+                                file_dict [name[0]] = directory+name[0]+"/pilon/"+name[0]+".vcf"
+                                name_list.append(name)
+                                i +=1
 
         
-input_file = filefolder+"Single_SNP_prob.csv"
+input_file = filefolder+"list1/Single_SNP_prob.csv"
 Single_SNP_prob ={}
 Single_SNP_probs =[]
 Single_SNP_probp =[]
@@ -80,7 +90,7 @@ with open(input_file, "r") as csvfile:
                 Single_SNP_probs.append(row[0])
                 Single_SNP_probp.append(float(row[1]))
 
-input_file = filefolder+"Multi_SNP_prob.csv"
+input_file = filefolder+"list1/Multi_SNP_prob.csv"
 Multi_SNP_prob ={}
 Multi_SNP_probs =[]
 Multi_SNP_probp =[]
@@ -172,12 +182,125 @@ for num, (name, group) in enumerate(df_grouped):
 ax.set_xticks(x_labels_pos)
 ax.set_xticklabels(x_labels)
 ax.set_xlim([0, len(df)])
-ax.set_ylim([0, 5])
+ax.set_ylim([0, 7])
 ax.set_xlabel('phenotype')
 fig.savefig(target_folder+'Manhatten.png')
 
+####################stat learning#############################################
+i=0
+clone_lists = defaultdict()
+for file in file_list:
+    filename = re.findall(r"(\w+\d+)", file)
+    pos = []
+    with open(file) as vcffile:
+        clone_lists[i]=[record.POS for record in vcf.Reader(vcffile) if record.is_snp]
+        clone_key [i] = antibiotics_dicts[antibiotic][str(filename)]
+        i+=1
+
+pos=[]
+snp1 =[]
+snp2=[]
+allcombination=[]
+allpos=[]
+pheno ={}
+test =0
+c=0
+scores ={}
+scorep=0
+scorec=0
+scorepl=[]
+scorecl=[]
+
+scoresl=[]
+label=[]
+for file in file_list:
+    if clone_key[c] == "R" or clone_key[c] == "S":
+        pos=[]
+        with open(file) as vcffile:
+            vcfReader = vcf.Reader(vcffile)
+            for record in vcfReader:
+                pos.append(record.POS)
+                allpos.append(record.POS)
+            i=0
+            for first in pos[:-1]:
+                snp1=first
+                for second in pos[i+1:]:
+                    snp2=second
+                    allcombination.append(str(first)+"_"+str(second))
+                i+=1
+        scorep=0
+        scorec=0
+        for element in (Counter(allcombination) & Counter (r2_finals)):
+            if (float(r2_final [element])) > 0.2:
+                if phenotype_SNP [element] == "Resistant":
+                    scorep = scorep + (float(r2_final [element]))
+                elif phenotype_SNP [element] == "Sensitive":
+                    scorec = scorec + (float(r2_final [element]))
+        scoresl.append(scorep+scorec)
+        scorepl.append(scorep)
+        scorecl.append(scorec)
+        scores [file] = scorep+scorec
+#       label.append(clone_key[c])
+        if clone_key[c] == "Resistant":
+            label.append(int(0))
+        elif clone_key[c] == "Sensitive":
+            label.append(int(1))
+#       else:
+#           label.append(int(2))
+        #if score >0:
+        #    pheno [file] = "Commensal"
+        #elif score <0:
+        #    pheno [file] = "Pathogenic"
+        #elif score ==0:
+        #    pheno [file] = "NA"
+        #if pheno [file] == clone_key[c]:
+        #    test +=1
+    c +=1
+
+############################SMV
+
+# Initializing Classifiers
+clf1 = LogisticRegression(random_state=0)
+clf2 = RandomForestClassifier(random_state=0)
+clf3 = SVC(random_state=0, probability=True)
+eclf = EnsembleVoteClassifier(clfs=[clf1, clf2, clf3],
+                              weights=[2, 1, 1], voting='soft')
+
+# Loading some example data
+#X, y = iris_data()
+#X = X[:,[0, 2]]
+Xa = np.asarray(scorecl, dtype=np.float64)
+Xb = np.asarray(scorepl, dtype=np.float64)
+dataset=np.dstack([np.float64(Xa),np.float64(Xb)])
+X = dataset.reshape(len(Xa),-1)
+
+y=np.asarray(label)
+# Plotting Decision Regions
+
+gs = gridspec.GridSpec(2, 2)
+fig = plt.figure(figsize=(10, 8))
+
+labels = ['Logistic Regression',
+          'Random Forest',
+          'RBF kernel SVM',
+          'Ensemble']
+
+for clf, lab, grd in zip([clf1, clf2, clf3, eclf],
+                         labels,
+                         itertools.product([0, 1],
+                         repeat=2)):
+    clf.fit(X, y)
+    ax = plt.subplot(gs[grd[0], grd[1]])
+    fig = plot_decision_regions(X=X, y=y,
+                                clf=clf, legend=2)
+    plt.title(lab)
+plt.xlabel("Sensitive score", size=14)
+plt.ylabel("Resistant score", size=14)
+plt.show()
+fig.savefig(target_folder+'statistial_learning.png')
+
 ###############SNPs highly connected in pathogenic network#####################
-#r2_finalp.sort()
+r2_finalp.sort()
 G_p=nx.Graph()
 G_c=nx.Graph()
 split =[]
@@ -188,7 +311,7 @@ network_counts_p_single =[]
 network_counts_c_single =[]
 for element in r2_finals:
     if phenotype_SNP [element] == "Resistant":
-        if -np.log10(r2_final[element]) > 3:
+        if -np.log10(r2_final[element]) > 4:
             split=element.split("_")
             network_counts_p.append(split[0])
             network_counts_p.append(split[1])
@@ -197,7 +320,7 @@ for element in r2_finals:
             G_p.add_edge(split[0], split[1], fillcolor="red", color="red", weight=r2_final[element])
         
     elif phenotype_SNP [element] == "Sensitive":
-        if -np.log10(r2_final[element]) > 3:
+        if -np.log10(r2_final[element]) > 4:
             split=element.split("_")
             network_counts_c.append(split[0])
             network_counts_c.append(split[1])
@@ -215,7 +338,11 @@ for element in network_counts_p:
     if element not in network_counts_c_single:
         network_counts_c_single.append(element)
 
+nx.draw(G_p)
 nx.draw_networkx(G_p, with_labels=True, with_fillcolors=True, with_colors=True)
-G_p.savefig(target_folder+'G_p network.png')
+fig.savefig(target_folder+'network_p.png')
+nx.draw(G_c)
 nx.draw_networkx(G_c, with_labels=True, with_fillcolors=True, with_colors=True)
-G_c.savefig(target_folder+'G_c network.png')
+fig.savefig(target_folder+'network_c.png')
+#sns.distplot(network_counts_p, kde=False, rug=True)
+#sns.distplot(network_counts_c, kde=False, rug=True)   
