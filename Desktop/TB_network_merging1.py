@@ -12,11 +12,12 @@ import math
 import regex as re
 from collections import Counter
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 resistance_folder = "/n/data1/hms/dbmi/farhat/rollingDB/summary_table_resistance2.tsv"
 directory =  "/n/data1/hms/dbmi/farhat/rollingDB/genomic_data/"
-target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/test/"
-filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/"
+target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1/"
+#filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1/"
 antibiotic = 18 ##rifampicin-antibiotics_dicts[18]##
 
 #############################Antibiotics data##################################
@@ -48,7 +49,6 @@ with open(resistance_folder, "r") as tsvfile:
                 antibiotics_lists[k].append(split[0])
                 
 ###############################################################################
-
 file_dict ={}
 file_list =[]
 name_list =[]
@@ -67,7 +67,7 @@ for root, dir, files in os.walk(directory):
                                 name_list.append(name)
                                 i +=1
                                 
-##########Single_SNP_probability and Multi_SNP_probability (1 hour)############
+#########Single_SNP_probability and Multi_SNP_probability (1 hour)############
 #pos=[]
 #snp1 =[]
 #snp2=[]
@@ -81,13 +81,7 @@ for root, dir, files in os.walk(directory):
 #            pos.append(record.POS)
 #            allpos.append(record.POS)
 #        i=0
-#        for first in pos[:-1]:
-#            snp1=first
-#            for second in pos[i+1:]:
-#                snp2=second
-#                allcombination.append(str(first)+"_"+str(second))
-#            i+=1
-#            
+#
 #Single_SNP_prob ={}
 #Single_SNP_proba ={}
 #Single_SNP_probs =[]
@@ -95,14 +89,32 @@ for root, dir, files in os.walk(directory):
 #counts = Counter(allpos)
 #Single_SNP_proba=dict(counts)
 #for element in Single_SNP_proba:
-#    Single_SNP_prob[element] = float((Single_SNP_proba[element]/len(file_list)))
-#    Single_SNP_probs.append(str(element))
-#    Single_SNP_probp.append(float((Single_SNP_proba[element]/len(file_list))))
+#    if (float(Single_SNP_proba[element])/len(file_list)) >=0.01:
+#        Single_SNP_prob[str(element)] = (float(Single_SNP_proba[element])/len(file_list))
+#        Single_SNP_probs.append(str(element))
+#        Single_SNP_probp.append(float(Single_SNP_proba[element])/len(file_list))
 #    
 #with open (target_folder+"Single_SNP_prob.csv", "w") as csv_file:
 #    writer=csv.writer(csv_file, delimiter ="\t")
 #    for key, value in Single_SNP_prob.items():
 #        writer.writerow([key, value])
+#
+#for file in file_list:
+#    pos=[]
+#    with open(file) as vcffile:
+#        vcfReader = vcf.Reader(vcffile)
+#        for record in vcfReader:
+#            pos.append(record.POS)
+#            allpos.append(record.POS)
+#        i=0
+#        for first in pos[:-1]:
+#            if str(first) in Single_SNP_prob:
+#                snp1=first
+#                for second in pos[i+1:]:
+#                    if str(second) in Single_SNP_prob:
+#                        snp2=second
+#                        allcombination.append(str(first)+"_"+str(second))
+#                i+=1
 #
 #Multi_SNP_prob ={}
 #Multi_SNP_proba ={}
@@ -111,40 +123,18 @@ for root, dir, files in os.walk(directory):
 #counts = Counter(allcombination)
 #Multi_SNP_proba=dict(counts)
 #for element in Multi_SNP_proba:
-#    Multi_SNP_prob[element] = float((Multi_SNP_proba[element]/len(file_list)))
-#    Multi_SNP_probs.append(str(element))
-#    Multi_SNP_probp.append(float((Multi_SNP_proba[element]/len(file_list))))
+#    if (float(Multi_SNP_proba[element])/len(file_list)) >0:
+#        Multi_SNP_prob[str(element)] = (float(Multi_SNP_proba[element])/len(file_list))
+#        Multi_SNP_probs.append(str(element))
+#        Multi_SNP_probp.append((float(Multi_SNP_proba[element])/len(file_list)))
 #    
 #with open (target_folder+"Multi_SNP_prob.csv", "w") as csv_file:
 #    writer=csv.writer(csv_file, delimiter ="\t")
 #    for key, value in Multi_SNP_prob.items():
 #        writer.writerow([key, value])
-        
-input_file = filefolder+"Single_SNP_prob.csv"
-Single_SNP_prob ={}
-Single_SNP_probs =[]
-Single_SNP_probp =[]
-with open(input_file, "r") as csvfile:
-        reader = csv.reader(csvfile, delimiter = "\t")
-        for row in reader:
-            if row:
-                Single_SNP_prob [row[0]] = float(row[1])
-                Single_SNP_probs.append(row[0])
-                Single_SNP_probp.append(float(row[1]))
-
-input_file = filefolder+"Multi_SNP_prob.csv"
-Multi_SNP_prob ={}
-Multi_SNP_probs =[]
-Multi_SNP_probp =[]
-with open(input_file, "r") as csvfile:
-        reader = csv.reader(csvfile, delimiter = "\t")
-        for row in reader:
-            if row:
-                if float(row[1]) > 0:
-                    Multi_SNP_prob [row[0]] = float(row[1])
-                    Multi_SNP_probs.append(row[0])
-                    Multi_SNP_probp.append(float(row[1]))
-
+#        
+#
+#
 #LD = {}
 #first = []
 #for key, value in Multi_SNP_prob.items():
@@ -175,7 +165,32 @@ with open(input_file, "r") as csvfile:
 #    writer=csv.writer(csv_file, delimiter ="\t")
 #    for key, value in pearson2.items():
 #        writer.writerow([key, value])
-                
+            
+input_file = filefolder+"Single_SNP_prob.csv"
+Single_SNP_prob ={}
+Single_SNP_probs =[]
+Single_SNP_probp =[]
+with open(input_file, "r") as csvfile:
+        reader = csv.reader(csvfile, delimiter = "\t")
+        for row in reader:
+            if row:
+                Single_SNP_prob [row[0]] = float(row[1])
+                Single_SNP_probs.append(row[0])
+                Single_SNP_probp.append(float(row[1]))
+
+input_file = filefolder+"Multi_SNP_prob.csv"
+Multi_SNP_prob ={}
+Multi_SNP_probs =[]
+Multi_SNP_probp =[]
+with open(input_file, "r") as csvfile:
+        reader = csv.reader(csvfile, delimiter = "\t")
+        for row in reader:
+            if row:
+                if float(row[1]) > 0:
+                    Multi_SNP_prob [row[0]] = float(row[1])
+                    Multi_SNP_probs.append(row[0])
+                    Multi_SNP_probp.append(float(row[1]))
+
 ##################Phenotype correlations for different drugs###################
 clone_key ={}
 count_list_a = {}
@@ -220,52 +235,51 @@ length = math.ceil((len(Multi_SNP_probs))/10)
 #h =  False | False <<1 | False <<2 = 0
 
 for element in Multi_SNP_probs[:length]:
-    if count == (0.5*length):
-        with open (target_folder+"count_list_a.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_a.items():
-                writer.writerow([key, value])
-   
-        with open (target_folder+"count_list_b.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_b.items():
-                writer.writerow([key, value])  
-        
-        with open (target_folder+"count_list_c.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_c.items():
-                writer.writerow([key, value])
-
-        with open (target_folder+"count_list_d.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_d.items():
-                writer.writerow([key, value])
-
-        with open (target_folder+"count_list_e.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_e.items():
-                writer.writerow([key, value])
-       
-        with open (target_folder+"count_list_f.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_f.items():
-                writer.writerow([key, value])    
-    
-        with open (target_folder+"count_list_g.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_g.items():
-                writer.writerow([key, value])
-       
-        with open (target_folder+"count_list_h.csv", "w") as csv_file:
-            writer=csv.writer(csv_file, delimiter ="\t")
-            for key, value in count_list_h.items():
-                writer.writerow([key, value])   
-    i=0
+#    if count == (0.5*length):
+#        with open (target_folder+"count_list_a.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_a.items():
+#                writer.writerow([key, value])
+#   
+#        with open (target_folder+"count_list_b.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_b.items():
+#                writer.writerow([key, value])  
+#        
+#        with open (target_folder+"count_list_c.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_c.items():
+#                writer.writerow([key, value])
+#
+#        with open (target_folder+"count_list_d.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_d.items():
+#                writer.writerow([key, value])
+#
+#        with open (target_folder+"count_list_e.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_e.items():
+#                writer.writerow([key, value])
+#       
+#        with open (target_folder+"count_list_f.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_f.items():s
+#                writer.writerow([key, value])    
+#    
+#        with open (target_folder+"count_list_g.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_g.items():
+#                writer.writerow([key, value])
+#       
+#        with open (target_folder+"count_list_h.csv", "w") as csv_file:
+#            writer=csv.writer(csv_file, delimiter ="\t")
+#            for key, value in count_list_h.items():
+#                writer.writerow([key, value])
     values = defaultdict(int)
     count_list ={}
     split=element.split("_")
-    for i in range (len(clone_lists)):
-        values[(clone_key[i] == "R") | ((int(split[0]) in clone_lists[i]) << 1) | ((int(split[1]) in clone_lists[i]) << 2)] +=1
+    for n in range (len(clone_lists)):
+        values[(clone_key[n] == "R") | ((int(split[0]) in clone_lists[n]) << 1) | ((int(split[1]) in clone_lists[n]) << 2)] +=1
     count_list_a [element] = values[7] /len(file_list)
     count_list_b [element] = values[3] /len(file_list)
     count_list_c [element] = values[5] /len(file_list)
@@ -317,6 +331,70 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
        writer.writerow([key, value])    
     
 #############calculate R for SNP pairs and phenotype###########################
+#input_file = target_folder+"count_list_a2.csv"
+#count_list_a={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_a [row[0]] = float(row[1])
+#
+#input_file = target_folder+"count_list_b2.csv"
+#count_list_b={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_b [row[0]] = float(row[1])
+#
+#input_file = target_folder+"count_list_c2.csv"
+#count_list_c={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_c [row[0]] = float(row[1])
+#                
+#input_file = target_folder+"count_list_d2.csv"
+#count_list_d={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_d [row[0]] = float(row[1])
+#
+#input_file = target_folder+"count_list_e2.csv"
+#count_list_e={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_e [row[0]] = float(row[1])
+#
+#input_file = target_folder+"count_list_f2.csv"
+#count_list_f={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_f [row[0]] = float(row[1])     
+#        
+#input_file = target_folder+"count_list_g2.csv"
+#count_list_g={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_g [row[0]] = float(row[1])
+#
+#input_file = target_folder+"count_list_h2.csv"
+#count_list_h={}
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                count_list_h [row[0]] = float(row[1]) 
+
 r_final={}
 r_pair_final ={}
 r_pair_single_final ={}
@@ -327,7 +405,7 @@ r_pair_single_finalp =[]
 description ={}
 description_pair ={}
 description_pair_single ={}
-a_d =0
+a_d=0
 b_d=0
 c_d=0
 d_d=0
@@ -345,145 +423,129 @@ g_dv=0
 h_dv=0
 split =[]
 for element in Multi_SNP_probs[:length]:
+    ar=0
+    br=0
+    cr=0
+    dr=0
+    er=0
+    fr=0
+    gr=0
+    hr=0
     split=element.split("_")
     counts = []
-    counts_pair = []
-    counts_pair_single = []
+#    counts_pair = []
+#    counts_pair_single = []
     keys ={}
-    keys_pair={}
-    keys_pair_single={}
-    a = count_list_a[element]-(Multi_SNP_prob[element]*(resistance_prob))
-    b = count_list_b[element]-(Multi_SNP_prob[element]*(resistance_prob))
-    c = count_list_c[element]-(Multi_SNP_prob[element]*(resistance_prob))
-    d = count_list_d[element]-(Multi_SNP_prob[element]*(resistance_prob))
-    e = count_list_e[element]-(Multi_SNP_prob[element]*(1-resistance_prob))
-    f = count_list_f[element]-(Multi_SNP_prob[element]*(1-resistance_prob))
-    g = count_list_g[element]-(Multi_SNP_prob[element]*(1-resistance_prob))
-    h = count_list_h[element]-(Multi_SNP_prob[element]*(1-resistance_prob))
+#    keys_pair={}
+#    keys_pair_single={}
+    a = count_list_a[element]-(Multi_SNP_prob[element])*(resistance_prob)
+    b = count_list_b[element]-((float(Single_SNP_prob[split[0]])*(1-(float(Single_SNP_prob[split[1]]))))*(resistance_prob))
+    c = count_list_c[element]-((float(Single_SNP_prob[split[1]])*(1-(float(Single_SNP_prob[split[0]]))))*(resistance_prob))
+    d = count_list_d[element]-(1-(Multi_SNP_prob[element]))*(resistance_prob)
+    e = count_list_e[element]-(Multi_SNP_prob[element])*(1-resistance_prob)
+    f = count_list_f[element]-((float(Single_SNP_prob[split[0]])*(1-(float(Single_SNP_prob[split[1]]))))*(1-resistance_prob))
+    g = count_list_g[element]-((float(Single_SNP_prob[split[1]])*(1-(float(Single_SNP_prob[split[0]]))))*(1-resistance_prob))
+    h = count_list_h[element]-(1-(Multi_SNP_prob[element]))*(1-resistance_prob)
     a_dv=(float(Multi_SNP_prob[element]))*(1-(float(Multi_SNP_prob[element])))*(resistance_prob)*(1-resistance_prob)
-    b_dv=(float(Multi_SNP_prob[element]))*(1-(float(Multi_SNP_prob[element])))*(resistance_prob)*(1-resistance_prob)
-    c_dv=(float(Single_SNP_prob[split[0]])*(1-(float(Single_SNP_prob[split[1]]))))*(1-(float(Single_SNP_prob[split[0]])*(1-(float(Single_SNP_prob[split[1]]))))*(resistance_prob)*(1-resistance_prob))
-    d_dv=(float(Single_SNP_prob[split[0]])*(1-(float(Single_SNP_prob[split[1]]))))*(1-(float(Single_SNP_prob[split[0]])*(1-(float(Single_SNP_prob[split[1]]))))*(resistance_prob)*(1-resistance_prob))
-    e_dv=(float(Single_SNP_prob[split[1]])*(1-(float(Single_SNP_prob[split[0]]))))*(1-(float(Single_SNP_prob[split[1]])*(1-(float(Single_SNP_prob[split[0]]))))*(resistance_prob)*(1-resistance_prob))
-    f_dv=(float(Single_SNP_prob[split[1]])*(1-(float(Single_SNP_prob[split[0]]))))*(1-(float(Single_SNP_prob[split[1]])*(1-(float(Single_SNP_prob[split[0]]))))*(resistance_prob)*(1-resistance_prob))
-    g_dv=((1-(float(Single_SNP_prob[split[0]])))*(1-(float(Single_SNP_prob[split[1]]))))*(1-((1-(float(Single_SNP_prob[split[0]])))*(1-(float(Single_SNP_prob[split[1]]))))*(resistance_prob)*(1-resistance_prob))
-    h_dv= ((1-(float(Single_SNP_prob[split[0]])))*(1-(float(Single_SNP_prob[split[1]]))))*(1-((1-(float(Single_SNP_prob[split[0]])))*(1-(float(Single_SNP_prob[split[1]]))))*(resistance_prob)*(1-resistance_prob))
+    b_dv=((float(Single_SNP_prob[split[0]]))*(1-(float(Single_SNP_prob[split[1]]))))*(1-((float(Single_SNP_prob[split[0]]))*(1-(float(Single_SNP_prob[split[1]])))))*(resistance_prob)*(1-resistance_prob)
+    c_dv=((float(Single_SNP_prob[split[1]]))*(1-(float(Single_SNP_prob[split[0]]))))*(1-((float(Single_SNP_prob[split[1]]))*(1-(float(Single_SNP_prob[split[0]])))))*(resistance_prob)*(1-resistance_prob)
+    d_dv=(1-(float(Multi_SNP_prob[element])))*(1-(1-(float(Multi_SNP_prob[element]))))*(resistance_prob)*(1-resistance_prob)
+    e_dv=(float(Multi_SNP_prob[element]))*(1-(float(Multi_SNP_prob[element])))*(resistance_prob)*(1-resistance_prob)
+    f_dv=((float(Single_SNP_prob[split[0]]))*(1-(float(Single_SNP_prob[split[1]]))))*(1-((float(Single_SNP_prob[split[0]]))*(1-(float(Single_SNP_prob[split[1]])))))*(resistance_prob)*(1-resistance_prob)
+    g_dv=((float(Single_SNP_prob[split[1]]))*(1-(float(Single_SNP_prob[split[0]]))))*(1-((float(Single_SNP_prob[split[1]]))*(1-(float(Single_SNP_prob[split[0]])))))*(resistance_prob)*(1-resistance_prob)
+    h_dv=(1-(float(Multi_SNP_prob[element])))*(1-(1-(float(Multi_SNP_prob[element]))))*(resistance_prob)*(1-resistance_prob)
+    
     if a_dv>0:
         a_d = math.sqrt(a_dv)
+        keys ["a"] = a/a_d
+#        keys_pair ["a"] = a/a_d
+#        keys_pair_single ["a"]=a/a_d
+        ar=a/a_d
+        
     if b_dv>0:
         b_d = math.sqrt(b_dv)
+        keys ["b"] = b/b_d
+#        keys_pair_single ["b"]=b/b_d
+        br=b/b_d
+
     if c_dv>0:
         c_d = math.sqrt(c_dv)
+        keys ["c"] = c/c_d
+#        keys_pair_single ["c"]=c/c_d
+        cr=c/c_d
+        
     if d_dv>0:
         d_d = math.sqrt(d_dv)
+        keys ["d"] = d/d_d
+        dr=d/d_d
+        
     if e_dv>0:
         e_d = math.sqrt(e_dv)
-    if f_dv>0:
-        f_d = math.sqrt(f_dv)
-    if g_dv>0:
-        g_d = math.sqrt(g_dv)
-    if h_dv>0:
-        h_d = math.sqrt(h_dv)
-        
-    if a_d >0:
-        keys ["a"] = a/a_d
-        keys_pair ["a"] = a/a_d
-        keys_pair_single ["a"]=a/a_d
-        a=a/a_d
-    elif a_d==0:
-        a=0
-        
-    if b_d >0:
-        keys ["b"] = b/b_d
-        keys_pair_single ["b"]=b/b_d
-        b=b/b_d
-    elif b_d==0:
-        b=0
-        
-    if c_d >0:
-        keys ["c"] = c/c_d
-        keys_pair_single ["c"]=c/c_d
-        c=c/c_d
-    elif c_d==0:
-        c=0
-        
-    if d_d >0:
-        keys ["d"] = d/d_d
-        d=d/d_d
-    elif d_d==0:
-        d=0
-        
-    if e_d >0:
         keys ["e"] = e/e_d
-        keys_pair ["e"] = e/e_d
-        keys_pair_single ["e"]=e/e_d
-        e=e/e_d
-    elif e_d==0:
-        e=0
+#        keys_pair ["e"] = e/e_d
+#        keys_pair_single ["e"]=e/e_d
+        er=e/e_d
         
-    if f_d >0:
+    if f_dv>0:
+        f_d = math.sqrt(f_dv)        
         keys ["f"] = f/f_d
-        keys_pair_single ["f"]=f/f_d
-        f=f/f_d
-    elif f_d==0:
-        f=0
+#        keys_pair_single ["f"]=f/f_d
+        fr=f/f_d
         
-    if g_d >0:
+    if g_dv >0:
+        g_d = math.sqrt(g_dv)
         keys ["g"] = g/g_d
-        keys_pair_single ["g"]=g/g_d
-        g=g/g_d
-    elif g_d==0:
-        g=0
+#        keys_pair_single ["g"]=g/g_d
+        gr=g/g_d
         
-    if h_d >0:
+    if h_dv>0:
+        h_d = math.sqrt(h_dv)        
         keys ["h"] = h/h_d
-        h=h/h_d
-    elif h_d==0:
-        h=0
+        hr=h/h_d
 
-    counts = [a,b,c,d,e,f,g,h]
-    counts_pair = [a,e]
-    counts_pair_single =[a,b,c,e,f,g]
+    counts = [ar,br,cr,dr,er,fr,gr,hr]
+#    counts_pair = [ar,er]
+#    counts_pair_single =[ar,br,cr,er,fr,gr]
     r_final [element] = max(counts)
-    r_pair_final [element] = max(counts_pair)
-    r_pair_single_final [element] = max (counts_pair_single)
+#    r_pair_final [element] = max(counts_pair)
+#    r_pair_single_final [element] = max (counts_pair_single)
     r_finallist.append(element)
     description [element] = max(keys, key=keys.get)
-    description_pair [element] = max(keys_pair, key=keys_pair.get)
-    description_pair_single [element] = max(keys_pair_single, key=keys_pair_single.get)
+#    description_pair [element] = max(keys_pair, key=keys_pair.get)
+#    description_pair_single [element] = max(keys_pair_single, key=keys_pair_single.get)
     r_finalp.append(max(counts))
-    r_pair_finalp.append(max(counts_pair))
-    r_pair_single_finalp.append(max (counts_pair_single))   
+#    r_pair_finalp.append(max(counts_pair))
+#    r_pair_single_finalp.append(max (counts_pair_single))
     
 with open (target_folder+"r_final.csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
     for key, value in r_final.items():
         writer.writerow([key, value])
    
-with open (target_folder+"r_pair_final.csv", "w") as csv_file:
-    writer=csv.writer(csv_file, delimiter ="\t")
-    for key, value in r_pair_final.items():
-        writer.writerow([key, value])  
-        
-with open (target_folder+"r_pair_single_final.csv", "w") as csv_file:
-    writer=csv.writer(csv_file, delimiter ="\t")
-    for key, value in r_pair_single_final.items():
-        writer.writerow([key, value])
+#with open (target_folder+"r_pair_final.csv", "w") as csv_file:
+#    writer=csv.writer(csv_file, delimiter ="\t")
+#    for key, value in r_pair_final.items():
+#        writer.writerow([key, value])  
+#        
+#with open (target_folder+"r_pair_single_final.csv", "w") as csv_file:
+#    writer=csv.writer(csv_file, delimiter ="\t")
+#    for key, value in r_pair_single_final.items():
+#        writer.writerow([key, value])
 
 with open (target_folder+"description.csv", "w") as csv_file:
    writer=csv.writer(csv_file, delimiter ="\t")
    for key, value in description.items():
        writer.writerow([key, value])
 
-with open (target_folder+"description_pair.csv", "w") as csv_file:
-   writer=csv.writer(csv_file, delimiter ="\t")
-   for key, value in description_pair.items():
-       writer.writerow([key, value])
-       
-with open (target_folder+"description_pair_single.csv", "w") as csv_file:
-   writer=csv.writer(csv_file, delimiter ="\t")
-   for key, value in description_pair_single.items():
-       writer.writerow([key, value])
+#with open (target_folder+"description_pair.csv", "w") as csv_file:
+#   writer=csv.writer(csv_file, delimiter ="\t")
+#   for key, value in description_pair.items():
+#       writer.writerow([key, value])
+#       
+#with open (target_folder+"description_pair_single.csv", "w") as csv_file:
+#   writer=csv.writer(csv_file, delimiter ="\t")
+#   for key, value in description_pair_single.items():
+#       writer.writerow([key, value])
  
 
 ######################calculate r2 of SNP pairs with phenotype#################      
@@ -504,28 +566,28 @@ for element in r_finallist:
     r2_finals.append(element)
     r2_finalp.append(float(r_final[element])**2)
     
-    r2_pair_final [element] = (float(r_pair_final[element])**2)
-    r2_pair_finals.append(element)
-    r2_pair_finalp.append(float(r_pair_final[element])**2)
-
-    r2_pair_single_final [element] = (float(r_pair_single_final[element])**2)
-    r2_pair_single_finals.append(element)
-    r2_pair_single_finalp.append(float(r_pair_single_final[element])**2)
+#    r2_pair_final [element] = (float(r_pair_final[element])**2)
+#    r2_pair_finals.append(element)
+#    r2_pair_finalp.append(float(r_pair_final[element])**2)
+#
+#    r2_pair_single_final [element] = (float(r_pair_single_final[element])**2)
+#    r2_pair_single_finals.append(element)
+#    r2_pair_single_finalp.append(float(r_pair_single_final[element])**2)
 
 with open (target_folder+"r2_final1.csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
     for key, value in r2_final.items():
         writer.writerow([key, value])
         
-with open (target_folder+"r2_pair_final.csv", "w") as csv_file:
-    writer=csv.writer(csv_file, delimiter ="\t")
-    for key, value in r2_pair_final.items():
-        writer.writerow([key, value])
-        
-with open (target_folder+"r2_pair_single_final.csv", "w") as csv_file:
-    writer=csv.writer(csv_file, delimiter ="\t")
-    for key, value in r2_pair_single_final.items():
-        writer.writerow([key, value])
+#with open (target_folder+"r2_pair_final.csv", "w") as csv_file:
+#    writer=csv.writer(csv_file, delimiter ="\t")
+#    for key, value in r2_pair_final.items():
+#        writer.writerow([key, value])
+#        
+#with open (target_folder+"r2_pair_single_final.csv", "w") as csv_file:
+#    writer=csv.writer(csv_file, delimiter ="\t")
+#    for key, value in r2_pair_single_final.items():
+#        writer.writerow([key, value])
         
 #########################Phenotype classification##############################
 r2_description =[]
@@ -563,29 +625,29 @@ with open (target_folder+"phenotype_SNP1.csv", "w") as csv_file:
     for key, value in phenotype_SNP.items():
         writer.writerow([key, value])
         
-############################Manhatten p values#################################    
-df = pd.DataFrame({"SNP":r2_finals, "pvalue":r2_finalp, "phenotype": r2_description})
-df.phenotype = df.phenotype.astype('category')
-df.phenotype = df.phenotype.cat.set_categories(['Pathogenic', "Commensal"], ordered=True)
-df = df.sort_values('phenotype')
-
-# How to plot gene vs. -log10(pvalue) and colour it by chromosome?
-df['minuslog10pvalue'] = -np.log10(df.pvalue)
-df['ind'] = range(len(df))
-df_grouped = df.groupby(('phenotype'))
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-colors = ['red','green']
-x_labels = []
-x_labels_pos = []
-for num, (name, group) in enumerate(df_grouped):
-    group.plot(kind='scatter', x='ind', y='minuslog10pvalue',color=colors[num % len(colors)], ax=ax)
-    x_labels.append(name)
-    x_labels_pos.append((group['ind'].iloc[-1   ] - (group['ind'].iloc[-1] - group['ind'].iloc[0])/2))
-ax.set_xticks(x_labels_pos)
-ax.set_xticklabels(x_labels)
-ax.set_xlim([0, len(df)])
-ax.set_ylim([0, 6])
-ax.set_xlabel('phenotype')
-fig.savefig(target_folder+'Manhatten.png')
+#########################Manhatten#######################
+#df = pd.DataFrame({"SNP":r2_finals, "pvalue":r2_finalp, "phenotype": r2_description})
+#df.phenotype = df.phenotype.astype('category')
+#df.phenotype = df.phenotype.cat.set_categories(['Resistant', "Sensitive"], ordered=True)
+#df = df.sort_values('phenotype')
+#
+## How to plot gene vs. -log10(pvalue) and colour it by chromosome?
+#df['minuslog10pvalue'] = -np.log10(df.pvalue)
+#df['ind'] = range(len(df))
+#df_grouped = df.groupby(('phenotype'))
+#
+#fig = plt.figure()
+#ax = fig.add_subplot(111)
+#colors = ['red','green']
+#x_labels = []
+#x_labels_pos = []
+#for num, (name, group) in enumerate(df_grouped):
+#    group.plot(kind='scatter', x='ind', y='minuslog10pvalue',color=colors[num % len(colors)], ax=ax)
+#    x_labels.append(name)
+#    x_labels_pos.append((group['ind'].iloc[-1   ] - (group['ind'].iloc[-1] - group['ind'].iloc[0])/2))
+#ax.set_xticks(x_labels_pos)
+#ax.set_xticklabels(x_labels)
+#ax.set_xlim([0, len(df)])
+#ax.set_ylim([0, 5])
+#ax.set_xlabel('phenotype')
+#fig.savefig(target_folder+'Manhatten.png')
