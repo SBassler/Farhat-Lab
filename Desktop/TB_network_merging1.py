@@ -68,128 +68,128 @@ for root, dir, files in os.walk(directory):
                                 i +=1
                                 
 #########Single_SNP_probability and Multi_SNP_probability (1 hour)############
-#pos=[]
-#snp1 =[]
-#snp2=[]
-#allcombination=[]
-#allpos=[]
-#for file in file_list:
-#    pos=[]
-#    with open(file) as vcffile:
-#        vcfReader = vcf.Reader(vcffile)
-#        for record in vcfReader:
-#            pos.append(record.POS)
-#            allpos.append(record.POS)
-#        i=0
-#
-#Single_SNP_prob ={}
-#Single_SNP_proba ={}
-#Single_SNP_probs =[]
-#Single_SNP_probp =[]
-#counts = Counter(allpos)
-#Single_SNP_proba=dict(counts)
-#for element in Single_SNP_proba:
-#    if (float(Single_SNP_proba[element])/len(file_list)) >=0.01:
-#        Single_SNP_prob[str(element)] = (float(Single_SNP_proba[element])/len(file_list))
-#        Single_SNP_probs.append(str(element))
-#        Single_SNP_probp.append(float(Single_SNP_proba[element])/len(file_list))
-#    
-#with open (target_folder+"Single_SNP_prob.csv", "w") as csv_file:
-#    writer=csv.writer(csv_file, delimiter ="\t")
-#    for key, value in Single_SNP_prob.items():
-#        writer.writerow([key, value])
-#
-#for file in file_list:
-#    pos=[]
-#    with open(file) as vcffile:
-#        vcfReader = vcf.Reader(vcffile)
-#        for record in vcfReader:
-#            pos.append(record.POS)
-#            allpos.append(record.POS)
-#        i=0
-#        for first in pos[:-1]:
-#            if str(first) in Single_SNP_prob:
-#                snp1=first
-#                for second in pos[i+1:]:
-#                    if str(second) in Single_SNP_prob:
-#                        snp2=second
-#                        allcombination.append(str(first)+"_"+str(second))
-#                i+=1
-#
-#Multi_SNP_prob ={}
-#Multi_SNP_proba ={}
-#Multi_SNP_probs =[]
-#Multi_SNP_probp =[]
-#counts = Counter(allcombination)
-#Multi_SNP_proba=dict(counts)
-#for element in Multi_SNP_proba:
-#    if (float(Multi_SNP_proba[element])/len(file_list)) >0:
-#        Multi_SNP_prob[str(element)] = (float(Multi_SNP_proba[element])/len(file_list))
-#        Multi_SNP_probs.append(str(element))
-#        Multi_SNP_probp.append((float(Multi_SNP_proba[element])/len(file_list)))
-#    
-#with open (target_folder+"Multi_SNP_prob.csv", "w") as csv_file:
-#    writer=csv.writer(csv_file, delimiter ="\t")
-#    for key, value in Multi_SNP_prob.items():
-#        writer.writerow([key, value])
-#        
-#
-#
-#LD = {}
-#first = []
-#for key, value in Multi_SNP_prob.items():
-#    first = re.findall(r"(\d+)",key)
-#    LD [key] = value-(Single_SNP_prob[first[0]]*Single_SNP_prob[first[1]])
-#    
-#with open (target_folder+"LD.csv", "w") as csv_file:
-#    writer=csv.writer(csv_file, delimiter ="\t")
-#    for key, value in LD.items():
-#        writer.writerow([key, value])
-#
-#pearson= {}
-#for key, value in LD.items():
-#    first = re.findall(r"(\d+)",key)
-#    if (Single_SNP_prob[first[0]]*(1-Single_SNP_prob[first[0]])*Single_SNP_prob[first[1]]*(1-Single_SNP_prob[first[1]]))>0:
-#        pearson [key] = value/math.sqrt(Single_SNP_prob[first[0]]*(1-Single_SNP_prob[first[0]])*Single_SNP_prob[first[1]]*(1-Single_SNP_prob[first[1]]))
-#        
-#with open (target_folder+"pearson.csv", "w") as csv_file:
-#    writer=csv.writer(csv_file, delimiter ="\t")
-#    for key, value in pearson.items():
-#        writer.writerow([key, value])    
-#    
-#pearson2={}
-#for key, value in pearson.items():
-#    pearson2 [key] = value**2
-#    
-#with open (target_folder+"pearson2.csv", "w") as csv_file:
-#    writer=csv.writer(csv_file, delimiter ="\t")
-#    for key, value in pearson2.items():
-#        writer.writerow([key, value])
-            
-input_file = filefolder+"Single_SNP_prob.csv"
+pos=[]
+snp1 =[]
+snp2=[]
+allcombination=[]
+allpos=[]
+for file in file_list:
+    pos=[]
+    with open(file) as vcffile:
+        vcfReader = vcf.Reader(vcffile)
+        for record in vcfReader:
+            pos.append(record.POS)
+            allpos.append(record.POS)
+        i=0
+
 Single_SNP_prob ={}
+Single_SNP_proba ={}
 Single_SNP_probs =[]
 Single_SNP_probp =[]
-with open(input_file, "r") as csvfile:
-        reader = csv.reader(csvfile, delimiter = "\t")
-        for row in reader:
-            if row:
-                Single_SNP_prob [row[0]] = float(row[1])
-                Single_SNP_probs.append(row[0])
-                Single_SNP_probp.append(float(row[1]))
+counts = Counter(allpos)
+Single_SNP_proba=dict(counts)
+for element in Single_SNP_proba:
+    if (float(Single_SNP_proba[element])/len(file_list)) >=0.01:
+        Single_SNP_prob[str(element)] = (float(Single_SNP_proba[element])/len(file_list))
+        Single_SNP_probs.append(str(element))
+        Single_SNP_probp.append(float(Single_SNP_proba[element])/len(file_list))
+    
+with open (target_folder+"Single_SNP_prob.csv", "w") as csv_file:
+    writer=csv.writer(csv_file, delimiter ="\t")
+    for key, value in Single_SNP_prob.items():
+        writer.writerow([key, value])
 
-input_file = filefolder+"Multi_SNP_prob.csv"
+for file in file_list:
+    pos=[]
+    with open(file) as vcffile:
+        vcfReader = vcf.Reader(vcffile)
+        for record in vcfReader:
+            pos.append(record.POS)
+            allpos.append(record.POS)
+        i=0
+        for first in pos[:-1]:
+            if str(first) in Single_SNP_prob:
+                snp1=first
+                for second in pos[i+1:]:
+                    if str(second) in Single_SNP_prob:
+                        snp2=second
+                        allcombination.append(str(first)+"_"+str(second))
+                i+=1
+
 Multi_SNP_prob ={}
+Multi_SNP_proba ={}
 Multi_SNP_probs =[]
 Multi_SNP_probp =[]
-with open(input_file, "r") as csvfile:
-        reader = csv.reader(csvfile, delimiter = "\t")
-        for row in reader:
-            if row:
-                if float(row[1]) > 0:
-                    Multi_SNP_prob [row[0]] = float(row[1])
-                    Multi_SNP_probs.append(row[0])
-                    Multi_SNP_probp.append(float(row[1]))
+counts = Counter(allcombination)
+Multi_SNP_proba=dict(counts)
+for element in Multi_SNP_proba:
+    if (float(Multi_SNP_proba[element])/len(file_list)) >0:
+        Multi_SNP_prob[str(element)] = (float(Multi_SNP_proba[element])/len(file_list))
+        Multi_SNP_probs.append(str(element))
+        Multi_SNP_probp.append((float(Multi_SNP_proba[element])/len(file_list)))
+    
+with open (target_folder+"Multi_SNP_prob.csv", "w") as csv_file:
+    writer=csv.writer(csv_file, delimiter ="\t")
+    for key, value in Multi_SNP_prob.items():
+        writer.writerow([key, value])
+        
+
+
+LD = {}
+first = []
+for key, value in Multi_SNP_prob.items():
+    first = re.findall(r"(\d+)",key)
+    LD [key] = value-(Single_SNP_prob[first[0]]*Single_SNP_prob[first[1]])
+    
+with open (target_folder+"LD.csv", "w") as csv_file:
+    writer=csv.writer(csv_file, delimiter ="\t")
+    for key, value in LD.items():
+        writer.writerow([key, value])
+
+pearson= {}
+for key, value in LD.items():
+    first = re.findall(r"(\d+)",key)
+    if (Single_SNP_prob[first[0]]*(1-Single_SNP_prob[first[0]])*Single_SNP_prob[first[1]]*(1-Single_SNP_prob[first[1]]))>0:
+        pearson [key] = value/math.sqrt(Single_SNP_prob[first[0]]*(1-Single_SNP_prob[first[0]])*Single_SNP_prob[first[1]]*(1-Single_SNP_prob[first[1]]))
+        
+with open (target_folder+"pearson.csv", "w") as csv_file:
+    writer=csv.writer(csv_file, delimiter ="\t")
+    for key, value in pearson.items():
+        writer.writerow([key, value])    
+    
+pearson2={}
+for key, value in pearson.items():
+    pearson2 [key] = value**2
+    
+with open (target_folder+"pearson2.csv", "w") as csv_file:
+    writer=csv.writer(csv_file, delimiter ="\t")
+    for key, value in pearson2.items():
+        writer.writerow([key, value])
+            
+#input_file = filefolder+"Single_SNP_prob.csv"
+#Single_SNP_prob ={}
+#Single_SNP_probs =[]
+#Single_SNP_probp =[]
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                Single_SNP_prob [row[0]] = float(row[1])
+#                Single_SNP_probs.append(row[0])
+#                Single_SNP_probp.append(float(row[1]))
+
+#input_file = filefolder+"Multi_SNP_prob.csv"
+#Multi_SNP_prob ={}
+#Multi_SNP_probs =[]
+#Multi_SNP_probp =[]
+#with open(input_file, "r") as csvfile:
+#        reader = csv.reader(csvfile, delimiter = "\t")
+#        for row in reader:
+#            if row:
+#                if float(row[1]) > 0:
+#                    Multi_SNP_prob [row[0]] = float(row[1])
+#                    Multi_SNP_probs.append(row[0])
+#                    Multi_SNP_probp.append(float(row[1]))
 
 ##################Phenotype correlations for different drugs###################
 clone_key ={}
