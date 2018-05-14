@@ -12,13 +12,15 @@ import math
 import regex as re
 from collections import Counter
 from collections import defaultdict
-import matplotlib.pyplot as plt
 
 resistance_folder = "/n/data1/hms/dbmi/farhat/rollingDB/summary_table_resistance2.tsv"
 directory =  "/n/data1/hms/dbmi/farhat/rollingDB/genomic_data/"
-target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1/"
-#filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1/"
+target_folder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1_3000/"
+filefolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/list1_3000/"
+r2folder="/n/data1/hms/dbmi/farhat/sbassler/rifampicin/files/r2/"
+descriptionfolder = "/n/data1/hms/dbmi/farhat/sbassler/rifampicin/files/description/"
 antibiotic = 18 ##rifampicin-antibiotics_dicts[18]##
+output = "51"
 
 #############################Antibiotics data##################################
 phenotypes =[]
@@ -61,7 +63,9 @@ for root, dir, files in os.walk(directory):
                     filename = str(names[0])
                     if filename in antibiotics_dicts[antibiotic]:
                         if antibiotics_dicts[antibiotic][filename] in "RS":
-                            if i < 501:
+                            if i <=2500:
+                                i+=1
+                            elif 2500 < i <=3000:
                                 file_list.append(directory+name[0]+"/pilon/"+name[0]+".vcf")
                                 file_dict [name[0]] = directory+name[0]+"/pilon/"+name[0]+".vcf"
                                 name_list.append(name)
@@ -177,7 +181,7 @@ with open (target_folder+"pearson2.csv", "w") as csv_file:
 #                Single_SNP_prob [row[0]] = float(row[1])
 #                Single_SNP_probs.append(row[0])
 #                Single_SNP_probp.append(float(row[1]))
-
+#
 #input_file = filefolder+"Multi_SNP_prob.csv"
 #Multi_SNP_prob ={}
 #Multi_SNP_probs =[]
@@ -224,7 +228,6 @@ for key,val in file_dict.items():
 
 count=0
 resistance_prob = (resistant/sensitive)
-length = math.ceil((len(Multi_SNP_probs))/10)
 #a = True | True <<1 | True <<2 = 7
 #b = True | True <<1 | False <<2 = 3
 #c = True | False <<1 | True <<2 = 5
@@ -233,48 +236,48 @@ length = math.ceil((len(Multi_SNP_probs))/10)
 #f = False | True <<1 | False <<2 = 2
 #g = False | False <<1 | True <<2 = 4
 #h =  False | False <<1 | False <<2 = 0
-
+length = math.ceil((len(Multi_SNP_probs))/10)
 for element in Multi_SNP_probs[:length]:
-#    if count == (0.5*length):
-#        with open (target_folder+"count_list_a.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_a.items():
-#                writer.writerow([key, value])
-#   
-#        with open (target_folder+"count_list_b.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_b.items():
-#                writer.writerow([key, value])  
-#        
-#        with open (target_folder+"count_list_c.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_c.items():
-#                writer.writerow([key, value])
-#
-#        with open (target_folder+"count_list_d.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_d.items():
-#                writer.writerow([key, value])
-#
-#        with open (target_folder+"count_list_e.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_e.items():
-#                writer.writerow([key, value])
-#       
-#        with open (target_folder+"count_list_f.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_f.items():s
-#                writer.writerow([key, value])    
-#    
-#        with open (target_folder+"count_list_g.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_g.items():
-#                writer.writerow([key, value])
-#       
-#        with open (target_folder+"count_list_h.csv", "w") as csv_file:
-#            writer=csv.writer(csv_file, delimiter ="\t")
-#            for key, value in count_list_h.items():
-#                writer.writerow([key, value])
+    if count == (0.5*length):
+        with open (target_folder+"count_list_a.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_a.items():
+                writer.writerow([key, value])
+   
+        with open (target_folder+"count_list_b.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_b.items():
+                writer.writerow([key, value])  
+        
+        with open (target_folder+"count_list_c.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_c.items():
+                writer.writerow([key, value])
+
+        with open (target_folder+"count_list_d.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_d.items():
+                writer.writerow([key, value])
+
+        with open (target_folder+"count_list_e.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_e.items():
+                writer.writerow([key, value])
+       
+        with open (target_folder+"count_list_f.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_f.items():
+                writer.writerow([key, value])    
+    
+        with open (target_folder+"count_list_g.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_g.items():
+                writer.writerow([key, value])
+       
+        with open (target_folder+"count_list_h.csv", "w") as csv_file:
+            writer=csv.writer(csv_file, delimiter ="\t")
+            for key, value in count_list_h.items():
+                writer.writerow([key, value])
     values = defaultdict(int)
     count_list ={}
     split=element.split("_")
@@ -331,7 +334,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
        writer.writerow([key, value])    
     
 #############calculate R for SNP pairs and phenotype###########################
-#input_file = target_folder+"count_list_a2.csv"
+#input_file = filefolder+"count_list_a2.csv"
 #count_list_a={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -339,7 +342,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_a [row[0]] = float(row[1])
 #
-#input_file = target_folder+"count_list_b2.csv"
+#input_file = filefolder+"count_list_b2.csv"
 #count_list_b={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -347,7 +350,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_b [row[0]] = float(row[1])
 #
-#input_file = target_folder+"count_list_c2.csv"
+#input_file = filefolder+"count_list_c2.csv"
 #count_list_c={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -355,7 +358,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_c [row[0]] = float(row[1])
 #                
-#input_file = target_folder+"count_list_d2.csv"
+#input_file = filefolder+"count_list_d2.csv"
 #count_list_d={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -363,7 +366,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_d [row[0]] = float(row[1])
 #
-#input_file = target_folder+"count_list_e2.csv"
+#input_file = filefolder+"count_list_e2.csv"
 #count_list_e={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -371,7 +374,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_e [row[0]] = float(row[1])
 #
-#input_file = target_folder+"count_list_f2.csv"
+#input_file = filefolder+"count_list_f2.csv"
 #count_list_f={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -379,7 +382,7 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_f [row[0]] = float(row[1])     
 #        
-#input_file = target_folder+"count_list_g2.csv"
+#input_file = filefolder+"count_list_g2.csv"
 #count_list_g={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
@@ -387,13 +390,14 @@ with open (target_folder+"count_list_h2.csv", "w") as csv_file:
 #            if row:
 #                count_list_g [row[0]] = float(row[1])
 #
-#input_file = target_folder+"count_list_h2.csv"
+#input_file = filefolder+"count_list_h2.csv"
 #count_list_h={}
 #with open(input_file, "r") as csvfile:
 #        reader = csv.reader(csvfile, delimiter = "\t")
 #        for row in reader:
 #            if row:
 #                count_list_h [row[0]] = float(row[1]) 
+
 
 r_final={}
 r_pair_final ={}
@@ -510,7 +514,8 @@ for element in Multi_SNP_probs[:length]:
 #    r_pair_final [element] = max(counts_pair)
 #    r_pair_single_final [element] = max (counts_pair_single)
     r_finallist.append(element)
-    description [element] = max(keys, key=keys.get)
+    if keys:
+        description [element] = max(keys, key=keys.get)
 #    description_pair [element] = max(keys_pair, key=keys_pair.get)
 #    description_pair_single [element] = max(keys_pair_single, key=keys_pair_single.get)
     r_finalp.append(max(counts))
@@ -574,7 +579,7 @@ for element in r_finallist:
 #    r2_pair_single_finals.append(element)
 #    r2_pair_single_finalp.append(float(r_pair_single_final[element])**2)
 
-with open (target_folder+"r2_final1.csv", "w") as csv_file:
+with open (r2folder+"r2_final"+output+".csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
     for key, value in r2_final.items():
         writer.writerow([key, value])
@@ -597,12 +602,13 @@ phenotype_SNP={}
 r2_pair_finalpi =[]
 
 for element in r2_finals:
-    if description[element] in ["a","b", "c", "d"]:
-        phenotype_SNP [element] = "Resistant"
-        r2_description.append("Resistant")  
-    elif description [element] in ["e","f", "g", "h"]:
-        phenotype_SNP [element] = "Sensitive"
-        r2_description.append("Sensitive")  
+    if element in description:
+        if description[element] in ["a","b", "c", "d"]:
+            phenotype_SNP [element] = "Resistant"
+            r2_description.append("Resistant")  
+        elif description [element] in ["e","f", "g", "h"]:
+            phenotype_SNP [element] = "Sensitive"
+            r2_description.append("Sensitive")  
         
 #for element in r2_pair_finals:
 #    if description_pair[element] in ["a","b", "c", "d"]:
@@ -620,11 +626,11 @@ for element in r2_finals:
 #        phenotype_SNP [element] = "Sensitive"
 #        r2pair_single_description.append("Sensitive")  
 
-with open (target_folder+"phenotype_SNP1.csv", "w") as csv_file:
+with open (descriptionfolder+"phenotype_SNP"+output+".csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
     for key, value in phenotype_SNP.items():
         writer.writerow([key, value])
-        
+
 #########################Manhatten#######################
 #df = pd.DataFrame({"SNP":r2_finals, "pvalue":r2_finalp, "phenotype": r2_description})
 #df.phenotype = df.phenotype.astype('category')
