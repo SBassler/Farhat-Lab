@@ -873,7 +873,7 @@ with open (target_folder+"snp_score_"+anti+"_"+str(scoredef)+".csv", "w") as csv
     for key, value in snp_score.items():
         writer.writerow([key, value])   
         
-with open (target_folder+"geme_score_"+anti+"_"+str(scoredef)+".csv", "w") as csv_file:
+with open (target_folder+"gene_score_"+anti+"_"+str(scoredef)+".csv", "w") as csv_file:
     writer=csv.writer(csv_file, delimiter ="\t")
     for key, value in gene_score.items():
         writer.writerow([key, value])           
